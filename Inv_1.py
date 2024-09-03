@@ -17,10 +17,20 @@ df = df[['Order ID', 'Order Date', 'Ship Date',
        'Postal Code','Product ID',
        'Product Name', 'Sales', 'Quantity', 'Discount', 'Profit']]
 
-"""
-Group Data 
-Order ID wise
-Then Customer ID wise
+# Group Data 
+# Order ID wise
 
-"""
 print(df.columns)
+
+# order_id_list0 = df['Order ID'].tolist()
+# print(len(order_id_list0))
+
+#Creating list of distinct  Order ID
+order_id_list = df['Order ID'].unique().tolist()
+print(len(order_id_list))
+
+#Note: There are 5009 distinct Order ID. It would create 5009 invoices in Invoices folder and would take a lot of space. 
+#For demonstration, I am adding a Region filter
+
+
+
