@@ -36,11 +36,13 @@ print(len(order_id_list))
 #Note: There are 5009 distinct Order ID. It would create 5009 invoices in Invoices folder and would take a lot of space. 
 #For demonstration, I am adding a Region filter
 
+
+
 for ord in order_id_list:
     df1 = df[df['Order ID'] == ord]
 
 
-    print('DF1', df1)
+#     print('DF1', df1)
 
 
 
