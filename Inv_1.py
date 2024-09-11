@@ -44,5 +44,15 @@ for ord in order_id_list:
 
 #     print('DF1', df1)
 
+#Accessing invoice template and pasting data from df1 to invoice template.
+inv_temp_wb = openpyxl.load_workbook("Source/invoice template.xlsx")
+
+# inv_temp_wb.save('C:\\Users\\panka\\OneDrive\\Desktop\\Abcd.xlsx')
+
+# Iterating column and row wise in invoice template
+
+for i in inv_temp_wb:
+    print(i)
+
 
 
