@@ -1,6 +1,9 @@
 import pandas as pd
 import openpyxl
 import win32com.client
+import warnings
+
+warnings.filterwarnings("ignore")
 
 # Reading sample superstore dataset
 data_file_path = 'E:\\zPankaj\\Sample Superstore Invoices project\\Source\\Sample - Superstore.xlsx'
@@ -60,26 +63,31 @@ df = df[df['Region'] == 'West']
 
 
 
-# def fill_invoice(df1):
-#     breakpoint()    
-#     custID = (df1['Customer ID'].unique.tolist())[0]
-#     custname = (df1['Customer Name'].unique.tolist())[0]
-#     segm = (df1['Segment'].unique.tolist())[0]
-#     df1['address'] = df1['City'] + df1['State'] + df1['Country']
-#     address = (df1['address'].unique.tolist())[0]
-#     oid = (df1['Order ID'].unique.tolist())[0]
-#     odt = (df1['Order Date'].unique.tolist())[0]
-#     sdt = (df1['Ship Date'].unique.tolist())[0]
-#     ord_details = (df1['Order Details'].unique.tolist())[0]
-#     prod_ID = (df1['Product ID'].unique.tolist())[0]
-#     prod_name = (df1['Product Name'].unique.tolist())[0]
-#     unit_price = (df1['Unit Price'].unique.tolist())[0]
-#     qty = (df1['Quantity'].unique.tolist())[0]
+def fill_invoice(df1):
 
-#     print(custID, custname, segm, address, oid, odt, sdt, ord_details, prod_ID, prod_name, unit_price, qty)
+    try:
+        custID = (df1['Customer ID'].unique().tolist())[0]
+        # print("Success")
+        custname = (df1['Customer Name'].unique().tolist())[0]
+        segm = (df1['Segment'].unique().tolist())[0]
+        df1['address'] = df1['City'] + df1['State'] + df1['Country']
+        address = (df1['address'].unique().tolist())[0]
+        oid = (df1['Order ID'].unique().tolist())[0]
+        odt = (df1['Order Date'].unique().tolist())[0]
+        sdt = (df1['Ship Date'].unique().tolist())[0]
+        ord_details = (df1['Order Details'].unique().tolist())[0]
+        prod_ID = (df1['Product ID'].unique().tolist())[0]
+        prod_name = (df1['Product Name'].unique().tolist())[0]
+        unit_price = (df1['Unit Price'].unique().tolist())[0]
+        qty = (df1['Quantity'].unique().tolist())[0]
+        print("Hello", custID, custname, segm, address, oid, odt, sdt, ord_details, prod_ID, prod_name, unit_price, qty)
+
+    except Exception as e:
+        print(e)
 
 for ord in order_id_list:
     df1 = df[df['Order ID'] == ord]
     # print(df1)
-#   print('DF1', df1)
-    # fill_invoice(df1)
+    print('DF1', df1)
+    if not df1.empty or df1.notnull:
+        fill_invoice(df1)
