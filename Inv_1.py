@@ -3,13 +3,13 @@ import openpyxl
 import win32com.client
 import warnings
 
-warnings.filterwarnings("ignore")
+# warnings.filterwarnings("ignore")
 
 # Reading sample superstore dataset
 data_file_path = 'E:\\zPankaj\\Sample Superstore Invoices project\\Source\\Sample - Superstore.xlsx'
 df = pd.read_excel(data_file_path, sheet_name='Orders')
 
-print(df)
+print("Hello1",df)
 
 df.drop_duplicates(inplace=True)
 
@@ -45,9 +45,9 @@ def cell_for_entering_value_finder(inv_field):
 
     return cell_num
 
-inv_field = "Customer Name"
-a = cell_for_entering_value_finder(inv_field)
-print(a)
+# inv_field = "Customer Name"
+# a = cell_for_entering_value_finder(inv_field)
+# print(a)
 
 # fields for invoice from df1
 
@@ -61,33 +61,69 @@ order_id_list = df['Order ID'].unique().tolist()
 #For demonstration, I am adding a Region filter
 df = df[df['Region'] == 'West']
 
-
-
-def fill_invoice(df1):
+def invoice_details(df1):
 
     try:
-        custID = (df1['Customer ID'].unique().tolist())[0]
-        # print("Success")
-        custname = (df1['Customer Name'].unique().tolist())[0]
-        segm = (df1['Segment'].unique().tolist())[0]
-        df1['address'] = df1['City'] + df1['State'] + df1['Country']
-        address = (df1['address'].unique().tolist())[0]
-        oid = (df1['Order ID'].unique().tolist())[0]
-        odt = (df1['Order Date'].unique().tolist())[0]
-        sdt = (df1['Ship Date'].unique().tolist())[0]
-        ord_details = (df1['Order Details'].unique().tolist())[0]
-        prod_ID = (df1['Product ID'].unique().tolist())[0]
-        prod_name = (df1['Product Name'].unique().tolist())[0]
-        unit_price = (df1['Unit Price'].unique().tolist())[0]
-        qty = (df1['Quantity'].unique().tolist())[0]
-        print("Hello", custID, custname, segm, address, oid, odt, sdt, ord_details, prod_ID, prod_name, unit_price, qty)
+        # print(df1)
+        cust_name = (df1["Customer Name"].unique().tolist())[0]
+        cust_ID = (df1["Customer ID"].unique().tolist())[0]
+        segment = (df1["Segment"].unique().tolist())[0]
+        order_ID = (df1["Order ID"].unique().tolist())[0]
+        df1["Order Date"] = pd.to_datetime(df1["Order Date"], errors='coerce')
+        df1["Order Date"] = df1["Order Date"].apply(lambda x: x.strftime("%d %b %Y"))
+
+        order_dt = (df1["Order Date"].unique().tolist())[0]
+
+        df1["Ship Date"] = pd.to_datetime(df1["Ship Date"], errors='coerce')
+        df1["Ship Date"] = df1["Ship Date"].apply(lambda x: x.strftime("%d %b %Y"))
+
+        ship_dt = (df1["Ship Date"].unique().tolist())[0]
+        
+        prod_ID = (df1["Product ID"].unique().tolist())[0]
+        prod_name = (df1["Product Name"].unique().tolist())[0]
+        qty = (df1["Quantity"].unique().tolist())[0]
+
+        #Address - concat three columns
+        df1['Address'] = df1['City'] + ', '+ df1['State'] +', '+ df1['Country']
+        address = (df1["Address"].unique().tolist())[0]
+        # print(cust_name,cust_ID, segment, order_ID,order_dt,ship_dt,prod_ID,prod_name,qty)
 
     except Exception as e:
-        print(e)
+        print("Error: ",e)
+
+    return {"Customer Name": cust_name,"Customer ID":cust_ID, "Segment":segment, "Order ID":order_ID,
+            "Order Date":order_dt,"Ship Date":ship_dt,"Product ID":prod_ID,"Product Name":prod_name,
+            "Quantity":qty, "Address":address}
+
+    # return cust_name,cust_ID, segment, order_ID,order_dt,ship_dt,prod_ID,prod_name,qty
+
+
+def fill_invoice(df1,**kwargs):
+   
+    breakpoint()
+    for i_field in kwargs:
+
+        if i_field not in ["Product ID", "Product Name", "Unit Price", "Quantity"]:
+
+            cell_inv = cell_for_entering_value_finder(i_field)
+            cell_inv.value = kwargs[i_field]
+        
+        # Order details
+
+    inv_temp_wb.save('C:\\Users\\panka\\OneDrive\\Desktop\\Abcd.xlsx')
+    print(df1)
 
 for ord in order_id_list:
     df1 = df[df['Order ID'] == ord]
     # print(df1)
-    print('DF1', df1)
-    if not df1.empty or df1.notnull:
-        fill_invoice(df1)
+    # print('DF1', df1)
+    if (not df1.empty) or (not df1.isna().all().all()):
+        # fill_invoice(df1)
+
+        kwargs = invoice_details(df1)
+        print("Here is the output: ", kwargs)
+        try:
+            pass
+            fill_invoice(df1,**kwargs)
+        except Exception as e:
+            print("Capture Error in log., Error is: ",e)
