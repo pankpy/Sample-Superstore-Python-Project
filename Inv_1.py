@@ -37,7 +37,7 @@ def cell_for_entering_value_finder(inv_field):
         for j in i:
             # print("Sheet",j.value)
             if j.value == inv_field:
-                if inv_field in ["Product ID","Product Name","Unit Price","Quantity","Price"]:
+                if inv_field in ["Order Details"]:
                 # Cell_num will be the cell in which value of inv field will be enter for a customer.
                     cell_num = ws.cell(row=j.row+1, column=j.column)
                 else:
@@ -100,18 +100,52 @@ def invoice_details(df1):
 
 def fill_invoice(df1,**kwargs):
    
-    breakpoint()
     for i_field in kwargs:
 
+        breakpoint()
         if i_field not in ["Product ID", "Product Name", "Unit Price", "Quantity"]:
 
             cell_inv = cell_for_entering_value_finder(i_field)
             cell_inv.value = kwargs[i_field]
-        
-        # Order details
+
+            # Order details
+            # Keeping these fields in invoice
+            col = ["Product ID", "Product Name", "Quantity", "Sales", "Discount"]
+
+            # Where I want to paste this in invoice template
+            invf = "Order Details"
+            cell_inv = cell_for_entering_value_finder(invf)
+
+            df2 = df1[col]
+
+            # Adding one more column "Unit Price". Value for this will be calculated by subtracting Discount from Sales, 
+            # then dividing the difference by Quantity.
+
+            # df1['Unit Price'] = df1["Sales"] - df1["Discount"]
+            # df1['Unit Price'] = df1['Unit Price']/df1['Quantity']
+
+            # df1 = df[["Product ID", "Product Name", "Unit Price","Quantity", "Discount", "Sales"]]
+
+            # Compute the Unit Price
+            df2['Unit Price'] = (df2["Sales"] - df2["Discount"]) / df2['Quantity']
+            df2 = df2[["Product ID", "Product Name", "Unit Price", "Quantity", "Discount", "Sales"]]
+
+
+            # Set starting cell address (e.g., "C16")
+            start_cell = cell_inv
+            start_row = ws[start_cell].row
+            start_column = ws[start_cell].column
+
+            # Write the DataFrame to Excel using openpyxl, starting from C16
+            for r_idx, row in enumerate(df1.itertuples(index=False), start=start_row):
+                for c_idx, value in enumerate(row, start=start_column):
+                    ws.cell(row=r_idx, column=c_idx, value=value)
+
+
 
     inv_temp_wb.save('C:\\Users\\panka\\OneDrive\\Desktop\\Abcd.xlsx')
-    print(df1)
+
+ 
 
 for ord in order_id_list:
     df1 = df[df['Order ID'] == ord]
