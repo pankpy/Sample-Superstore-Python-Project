@@ -1,9 +1,13 @@
 import pandas as pd
 import openpyxl
-import win32com.client
+# from openpyxl.drawing.image import Image
+import pillow
+
 import warnings
 
+
 # warnings.filterwarnings("ignore")
+
 
 # Reading sample superstore dataset
 data_file_path = 'E:\\zPankaj\\Sample Superstore Invoices project\\Source\\Sample - Superstore.xlsx'
@@ -20,7 +24,7 @@ df = df[['Order ID', 'Order Date', 'Ship Date', 'Region',
        'Postal Code','Product ID',
        'Product Name', 'Sales', 'Quantity', 'Discount', 'Profit']]
 
-# Group Data 
+# Grouping Data 
 # Order ID wise
 
 
@@ -28,10 +32,14 @@ df = df[['Order ID', 'Order Date', 'Ship Date', 'Region',
 inv_temp_wb = openpyxl.load_workbook("Source/invoice template.xlsx")
 ws = inv_temp_wb["Invoice"]
 
+# logo_path = 'E:\\zPankaj\\Sample Superstore Invoices project\\Source'
+# logo_image = Image(logo_path)  # Replace with the path to the image
+# ws.add_image(logo_image, 'A1')
+
 # inv_temp_wb.save('C:\\Users\\panka\\OneDrive\\Desktop\\Abcd.xlsx')
 
 # Iterating column and row wise in invoice template
-# function to find cell next to Or below required fiels in invoice.
+# function to find cell next to Or below required fields in invoice.
 def cell_for_entering_value_finder(inv_field):
     for i in ws.iter_rows(min_row=1, max_row=ws.max_row, min_col=1, max_col=ws.max_column):
         for j in i:
@@ -45,13 +53,6 @@ def cell_for_entering_value_finder(inv_field):
 
     return cell_num
 
-# inv_field = "Customer Name"
-# a = cell_for_entering_value_finder(inv_field)
-# print(a)
-
-# fields for invoice from df1
-
-print(df.columns)
 
 #Creating list of distinct  Order ID
 order_id_list = df['Order ID'].unique().tolist()
@@ -102,60 +103,77 @@ def fill_invoice(df1,**kwargs):
    
     for i_field in kwargs:
 
-        breakpoint()
-        if i_field not in ["Product ID", "Product Name", "Unit Price", "Quantity"]:
+        if i_field not in ["Product ID", "Product Name", "Quantity"]:
 
             cell_inv = cell_for_entering_value_finder(i_field)
             cell_inv.value = kwargs[i_field]
 
-            # Order details
-            # Keeping these fields in invoice
-            col = ["Product ID", "Product Name", "Quantity", "Sales", "Discount"]
-
-            # Where I want to paste this in invoice template
-            invf = "Order Details"
-            cell_inv = cell_for_entering_value_finder(invf)
-
-            df2 = df1[col]
-
-            # Adding one more column "Unit Price". Value for this will be calculated by subtracting Discount from Sales, 
-            # then dividing the difference by Quantity.
-
-            # df1['Unit Price'] = df1["Sales"] - df1["Discount"]
-            # df1['Unit Price'] = df1['Unit Price']/df1['Quantity']
-
-            # df1 = df[["Product ID", "Product Name", "Unit Price","Quantity", "Discount", "Sales"]]
-
-            # Compute the Unit Price
-            df2['Unit Price'] = (df2["Sales"] - df2["Discount"]) / df2['Quantity']
-            df2 = df2[["Product ID", "Product Name", "Unit Price", "Quantity", "Discount", "Sales"]]
-
-
-            # Set starting cell address (e.g., "C16")
-            start_cell = cell_inv
-            start_row = ws[start_cell].row
-            start_column = ws[start_cell].column
-
-            # Write the DataFrame to Excel using openpyxl, starting from C16
-            for r_idx, row in enumerate(df1.itertuples(index=False), start=start_row):
-                for c_idx, value in enumerate(row, start=start_column):
-                    ws.cell(row=r_idx, column=c_idx, value=value)
-
-
-
-    inv_temp_wb.save('C:\\Users\\panka\\OneDrive\\Desktop\\Abcd.xlsx')
-
+    # Saving this in New invoice file...
+    cn = kwargs["Customer Name"]
+    cstID = kwargs["Customer ID"]
+    invoice_name = f"{cn}-{cstID}.xlsx"
+    new_inv_path = f'E:\\zPankaj\\Sample Superstore Invoices project\\Invoices\\{invoice_name}'
+    inv_temp_wb.save(new_inv_path)
  
+    # Order details
+    # Keeping these fields in invoice
+    col = ["Product ID", "Product Name", "Quantity", "Sales", "Discount"]
 
+    # Where I want to paste this in invoice template
+    invf = "Order Details"
+    cell_inv = cell_for_entering_value_finder(invf)
+
+    df2 = df1[col]
+
+    # Adding one more column "Unit Price". Value for this will be calculated by subtracting Discount from Sales, 
+    # then dividing the difference by Quantity.
+
+    # Compute the Unit Price
+    df2['Unit Price'] = (df2["Sales"] - df2["Discount"]) / df2['Quantity']
+    df2['Unit Price'] = round(df2['Unit Price'],2)
+    df2['Sales'] = round(df2['Sales'],2)
+    df2 = df2[["Product ID", "Product Name", "Unit Price", "Quantity", "Discount", "Sales"]]
+
+    # Adding Total under Sales column
+    total_sales = df2['Sales'].sum()
+    total_row_df = pd.DataFrame({'Product ID': ['Total'], 'Product Name': [''], 'Quantity': [''], 'Sales': [total_sales]})
+    df2 = pd.concat([df2, total_row_df], ignore_index=True)
+
+
+    # Currently, these two sentences are already in invoice template. The can be added in code to add after Total row dynamically.
+    # Thank you for shopping with us.
+    # This is a system generated receipt, hence signature not required.
+
+
+    start_cell = cell_inv
+    # breakpoint()
+    # start_row = ws[start_cell].row
+    start_row = start_cell.row+1
+    start_column = start_cell.column
+
+    # saving in new invoice...
+    wb2 = openpyxl.load_workbook(new_inv_path)
+    ws2 = wb2["Invoice"]
+    # Write the DataFrame to invoice using openpyxl
+    for r_idx, row in enumerate(df2.itertuples(index=False), start=start_row):
+        for c_idx, value in enumerate(row, start=start_column):
+            ws2.cell(row=r_idx, column=c_idx, value=value)
+    wb2.save(new_inv_path)
+
+
+def convert_to_pdf():
+    # The newly created invoice can be converted into pdf.
+    # Use the new invoice path
+    pass
+ 
 for ord in order_id_list:
     df1 = df[df['Order ID'] == ord]
-    # print(df1)
-    # print('DF1', df1)
+     # print('DF1', df1)
     if (not df1.empty) or (not df1.isna().all().all()):
         # fill_invoice(df1)
 
         kwargs = invoice_details(df1)
-        print("Here is the output: ", kwargs)
+        # print("Here is the output: ", kwargs)
         try:
             pass
             fill_invoice(df1,**kwargs)
