@@ -1,17 +1,20 @@
 Prebuilt invoice template
 The fields used in invoice template will receive details from Sample Superstore dataset (excel file).
 
-I will be using python for data analysis and creating invoices for each customer. The invoices be prepared in excel and then will be converted into pdf.
+I will be using python for data analysis and creating invoices for each customer. The invoices will be prepared in excel and then will be converted into pdf.
 
 Invoice/Receipt No. can be added later if required.
+Code to capture log for status and error can be added.
 
 Folder Structure:
 Source Folder: It contains Sample Superstore dataset and invoice template.
-
-Invoices Folder: It will contain invoice created using python code. The invoice fill name will have name in the format Order ID_Customer Name.xlsx.
-
+Invoices Folder: It will contain invoice created using python code. The invoice file name will have name in the format Customer Name_Order ID.xlsx.
 
 Python Libraries used are as follows:
 pandas
 openpyxl
-pywin32 (win32com.client)
+
+Please see "Inv_1.py" for more details.
+
+# Known Issues:
+Logo is missing in newly created invoices.
