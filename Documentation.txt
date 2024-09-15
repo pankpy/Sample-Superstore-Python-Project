@@ -8,7 +8,7 @@ Code to capture log for status and error can be added.
 
 Folder Structure:
 Source Folder: It contains Sample Superstore dataset and invoice template.
-Invoices Folder: It will contain invoice created using python code. The invoice file name will have name in the format Customer Name_Order ID.xlsx.
+Invoices Folder: It will contain invoice created using python code. The invoice file name will have name in the format Customer Name-Customer ID.xlsx.
 
 Python Libraries used are as follows:
 pandas
@@ -16,5 +16,5 @@ openpyxl
 
 Please see "Inv_1.py" for more details.
 
-# Known Issues:
+# Known Issue(s):
 Logo is missing in newly created invoices.
