@@ -1,8 +1,6 @@
 import pandas as pd
 import openpyxl
-# from openpyxl.drawing.image import Image
-import pillow
-
+import time
 import warnings
 
 
@@ -13,7 +11,7 @@ import warnings
 data_file_path = 'E:\\zPankaj\\Sample Superstore Invoices project\\Source\\Sample - Superstore.xlsx'
 df = pd.read_excel(data_file_path, sheet_name='Orders')
 
-print("Hello1",df)
+# print("Hello1",df)
 
 df.drop_duplicates(inplace=True)
 
@@ -32,11 +30,6 @@ df = df[['Order ID', 'Order Date', 'Ship Date', 'Region',
 inv_temp_wb = openpyxl.load_workbook("Source/invoice template.xlsx")
 ws = inv_temp_wb["Invoice"]
 
-# logo_path = 'E:\\zPankaj\\Sample Superstore Invoices project\\Source'
-# logo_image = Image(logo_path)  # Replace with the path to the image
-# ws.add_image(logo_image, 'A1')
-
-# inv_temp_wb.save('C:\\Users\\panka\\OneDrive\\Desktop\\Abcd.xlsx')
 
 # Iterating column and row wise in invoice template
 # function to find cell next to Or below required fields in invoice.
@@ -113,6 +106,7 @@ def fill_invoice(df1,**kwargs):
     cstID = kwargs["Customer ID"]
     invoice_name = f"{cn}-{cstID}.xlsx"
     new_inv_path = f'E:\\zPankaj\\Sample Superstore Invoices project\\Invoices\\{invoice_name}'
+    # new_inv_path = f'C:\\Users\\panka\\OneDrive\\Desktop\\New folder\\{invoice_name}'
     inv_temp_wb.save(new_inv_path)
  
     # Order details
@@ -159,23 +153,27 @@ def fill_invoice(df1,**kwargs):
         for c_idx, value in enumerate(row, start=start_column):
             ws2.cell(row=r_idx, column=c_idx, value=value)
     wb2.save(new_inv_path)
-
+    wb2.close()
+    time.sleep(1)
+    # breakpoint()
 
 def convert_to_pdf():
     # The newly created invoice can be converted into pdf.
     # Use the new invoice path
     pass
  
-for ord in order_id_list:
-    df1 = df[df['Order ID'] == ord]
-     # print('DF1', df1)
-    if (not df1.empty) or (not df1.isna().all().all()):
-        # fill_invoice(df1)
 
-        kwargs = invoice_details(df1)
-        # print("Here is the output: ", kwargs)
-        try:
-            pass
-            fill_invoice(df1,**kwargs)
-        except Exception as e:
-            print("Capture Error in log., Error is: ",e)
+if __name__ == "__main__":
+    for ord in order_id_list:
+        df1 = df[df['Order ID'] == ord]
+        # print('DF1', df1)
+        if (not df1.empty) or (not df1.isna().all().all()):
+            # fill_invoice(df1)
+
+            kwargs = invoice_details(df1)
+            # print("Here is the output: ", kwargs)
+            try:
+                pass
+                fill_invoice(df1,**kwargs)
+            except Exception as e:
+                print("Capture Error in log., Error is: ",e)
